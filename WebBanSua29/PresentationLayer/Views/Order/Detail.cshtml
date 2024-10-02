@@ -1,0 +1,89 @@
+﻿@model DataLayer.Interfaces.OrderInterface.IOrderJoinProductOrders
+
+@{
+    ViewData["Title"] = "Detail";
+}
+
+<h1>Chi tiết đơn hàng</h1>
+
+<div>
+    <dl class="row">
+        <dt class = "col-sm-2">
+            Id Đơn
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Order.Id)
+        </dd>
+        <dt class = "col-sm-2">
+            Tên Khách hàng 
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Order.CustomerName)
+        </dd>
+        <dt class = "col-sm-2">
+            Địa chỉ
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Order.CustomerAddress)
+        </dd>
+        <dt class = "col-sm-2">
+            Số điện thoại
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Order.CustomerPhoneNumber)
+        </dd>
+        <dt class = "col-sm-2">
+            Email
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Order.CustomerEmail)
+        </dd>
+        <dt class = "col-sm-2">
+            Tổng tiền
+        </dt>
+        <dd class = "col-sm-10">
+            @(Model.Order.SumPrices.ToString("n0"))
+        </dd>
+        <dt class = "col-sm-2">
+            Ngày đặt hàng
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Order.CreatedDate)
+        </dd>
+    </dl>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Tên sản phẩm
+                </th>
+                <th>
+                    Số lượng đặt
+                </th>
+                <th>
+                    Đơn giá
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.ProductOrders)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.product.ProductName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.productOrders.countOrder)
+                    </td>
+                    <td>
+                        @(item.product.Prices.ToString("n0"))
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div>
+    <a asp-action="Index">Quay lại danh sách</a>
+</div>

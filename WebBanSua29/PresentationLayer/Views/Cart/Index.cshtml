@@ -1,0 +1,180 @@
+﻿@using DataLayer.Entities
+@using Microsoft.AspNetCore.Http
+@using Newtonsoft.Json
+@using PresentationLayer.Models.Order
+@model DataLayer.Entities.Order
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    string? dataString = HttpContextAccessor.HttpContext.Session.GetString("Cart");
+    List<OrderInSession> cart = [];
+    if(dataString != null)
+    {
+        cart = JsonConvert.DeserializeObject<List<OrderInSession>>(dataString);
+    }
+
+    string? dataStringUser = HttpContextAccessor.HttpContext.Session.GetString("DataUser");
+    Customer dataUser = null;
+    if (dataStringUser != null)
+    {
+        dataUser = JsonConvert.DeserializeObject<Customer>(dataStringUser);
+    }
+}
+
+<div class="row">
+    <div class="col-8">
+        @if(cart.Count > 0){
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            ID sản phẩm
+                        </th>
+                        <th>
+                            Tên sản phẩm
+                        </th>
+                        <th>
+                            Hình ảnh
+                        </th>
+                        <th>
+                            Số lượng
+                        </th>
+                        <th>
+                            Giá
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in cart)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Id)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ProductName)
+                            </td>
+                            <td>
+                                <img src="@Html.DisplayFor(modelItem => item.Image)" width="200" height="200" alt="Alternate Text" />
+                            </td>
+                            <td>
+                                <input class="form-control" type="number" onchange="onUpdatePrices(event,@item.Id,@item.Prices)" value="@item.Count" />
+                            </td>
+                            <td id="prices-@item.Id">
+                                @(item.Count * item.Prices)
+                            </td>
+                            <td>
+                                <div class="btn btn-primary" onclick="onDelete(@item.Id)">Xóa</div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>Giỏ hàng trống</p>
+        }
+    </div>
+    <div class="col-4">
+        <form id="formCart" asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="CustomerName" class="control-label">Tên người mua</label>
+                <input asp-for="CustomerName" class="form-control" value="@(dataUser != null ? dataUser.Name  : "")" />
+                <span asp-validation-for="CustomerName" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-4">
+                <label asp-for="CustomerPhoneNumber" class="control-label">Số điện thoại</label>
+                <input asp-for="CustomerPhoneNumber" class="form-control" value="@(dataUser != null ? dataUser.PhoneNumber  : "")" />
+                <span asp-validation-for="CustomerPhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-4">
+                <label asp-for="CustomerAddress" class="control-label">Địa chỉ</label>
+                <input asp-for="CustomerAddress" class="form-control" value="@(dataUser != null ? dataUser.Address  : "")" />
+                <span asp-validation-for="CustomerAddress" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-4">
+                <label asp-for="CustomerEmail" class="control-label">Email</label>
+                <input asp-for="CustomerEmail" class="form-control" value="@(dataUser != null ? dataUser.Email  : "")" />
+                <span asp-validation-for="CustomerEmail" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-4">
+                <input type="submit" value="Đặt hàng" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<script>
+    const form = document.getElementById('formCart');
+    form.onsubmit = async (event) => {
+        event.preventDefault();
+        const dataForm = $("#formCart").serializeArray();
+
+        const requestBody = {
+            CustomerName: dataForm[0].value,
+            CustomerPhoneNumber: dataForm[1].value,
+            CustomerAddress: dataForm[2].value,
+            CustomerEmail: dataForm[3].value,
+            SumPrices: 0
+        };
+        if (requestBody.CustomerAddress && requestBody.CustomerPhoneNumber && requestBody.CustomerName && requestBody.CustomerEmail) {
+            const response = await fetch('/Cart/OnOrder', {
+                method: 'POST',
+                body: JSON.stringify(requestBody),
+                headers: {
+                    'Content-Type': 'application/json;charset=UTF-8',
+                },
+            });
+            const result = await response.json();
+            if (result.statusCode === 200) {
+                location.href = "/Cart/OrderSuccess"
+
+            }
+            else {
+                alert(result.message)
+            }
+        }
+        
+    }
+
+    const onUpdatePrices = async (event,id,priceProduct)=>{
+        const requestBody = {
+            count: Number(event.target.value),
+            id,
+        }
+        const response = await fetch('/Cart/onUpdateCart', {
+            method: 'POST',
+            body: JSON.stringify(requestBody),
+            headers: {
+                'Content-Type': 'application/json;charset=UTF-8',
+            },
+        });
+
+        const newPrice = requestBody.count * Number(priceProduct);
+        document.getElementById(`prices-${id}`).textContent = newPrice;
+    }
+
+    const onDelete = async (id)=>{
+        const requestBody = {
+            id,
+        }
+        const response = await fetch('/Cart/onDeleteCart', {
+            method: 'POST',
+            body: JSON.stringify(requestBody),
+            headers: {
+                'Content-Type': 'application/json;charset=UTF-8',
+            },
+        });
+
+        location.reload();
+    }
+</script>

@@ -1,0 +1,58 @@
+﻿@model PresentationLayer.Models.Auth.FormLoginModel
+
+<div class="container-fluid">
+    <div class="container mx-auto">
+        <h1>Đăng nhập</h1>
+        <form id="formLogin" asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label">Email</label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-4">
+                <label asp-for="Password" class="control-label">Mật khẩu</label>
+                <input asp-for="Password" type="password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-4">
+                <p id="status"></p>
+                <input type="submit" value="Đăng nhập" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('formLogin');
+    const status = document.getElementById('status');
+    form.onsubmit = async (event) => {
+        event.preventDefault();
+        const dataForm = $("#formLogin").serializeArray();
+        status.textContent = 'loading';
+        const requestBody = {
+            Email: dataForm[0].value,
+            Password: dataForm[1].value,
+        };
+
+        const response = await fetch('/Auth/onLogin', {
+            method: 'POST',
+            body: JSON.stringify(requestBody),
+            headers: {
+                'Content-Type': 'application/json;charset=UTF-8',
+            },
+        });
+
+        const result = await response.json();
+        status.textContent = '';
+        if (result.statusCode === 200) {
+            location.href = '/'
+        }
+    }
+</script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

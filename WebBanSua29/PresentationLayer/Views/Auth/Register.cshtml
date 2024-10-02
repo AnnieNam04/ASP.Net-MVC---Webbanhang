@@ -1,0 +1,80 @@
+﻿@model DataLayer.Entities.Customer
+
+<div class="container-fluid">
+    <div class="container mx-auto">
+        <h1>Đăng ký</h1>
+        <form id="formRegister">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label">Họ tên</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PhoneNumber" class="control-label">Số điện thoại</label>
+                <input asp-for="PhoneNumber" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Address" class="control-label">Địa chỉ</label>
+                <input asp-for="Address" class="form-control" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label">Email</label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" class="control-label">Mật khẩu</label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-4">
+                <p id="status"></p>
+                <input type="submit" value="Đăng ký" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('formRegister');
+    const status = document.getElementById('status');
+    form.onsubmit = async (event) => {
+        event.preventDefault();
+        const dataForm = $("#formRegister").serializeArray();
+        const requestBody = {
+            Name: dataForm[0].value,
+            PhoneNumber: dataForm[1].value,
+            Address: dataForm[2].value,
+            Email: dataForm[3].value,
+            Password: dataForm[4].value,
+        };
+
+        if (requestBody.Name && requestBody.Address && requestBody.Email && requestBody.Password && requestBody.PhoneNumber) {
+            status.textContent = 'loading';
+            const response = await fetch('/Auth/onRegister', {
+                method: 'POST',
+                body: JSON.stringify(requestBody),
+                headers: {
+                    'Content-Type': 'application/json;charset=UTF-8',
+                },
+            });
+
+            const result = await response.json();
+            status.textContent = 'Bạn đã đăng ký thành công';
+            if (result.statusCode === 200) {
+                location.href = '/Auth/Login'
+            }
+        }
+
+        
+    }
+</script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

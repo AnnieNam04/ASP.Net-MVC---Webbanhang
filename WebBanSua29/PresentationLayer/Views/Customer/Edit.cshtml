@@ -1,0 +1,70 @@
+﻿@model PresentationLayer.Models.EditCustomer;
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h4>Sửa thông tin khách hàng</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="onEdit" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input asp-for="Id" class="form-control" value="@Model.Id" hidden />
+            <div class="form-group">
+                <label asp-for="Name" class="control-label">Họ tên</label>
+                <input asp-for="Name" class="form-control" value="@Model.Name" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PhoneNumber" class="control-label">Số điện thoại</label>
+                <input asp-for="PhoneNumber" class="form-control" value="@Model.PhoneNumber" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Address" class="control-label">Địa chỉ</label>
+                <input asp-for="Address" class="form-control" value="@Model.Address" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label">Email</label>
+                <input asp-for="Email" class="form-control" value="@Model.Email" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-4">
+                <label for="Role">Chọn quyền cho tài khoản:</label>
+                <select name="Role" id="Role">
+                    @if(Model.Role == 1){
+                        <option selected value="1">Khách hàng</option>
+                    }
+                    else
+                    {
+                        <option value="1">Khách hàng</option>
+                    }
+
+                    @if (Model.Role == 2)
+                    {
+                        <option selected value="2">Admin</option>
+                    }
+                    else
+                    {
+                        <option value="2">Admin</option>
+                    }
+                    
+                </select>
+                <span asp-validation-for="Role" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Cập nhật" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Quay lại danh sách</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
